@@ -20,7 +20,9 @@ import {
   SymbolsSequence, 
   VideoSlotConfig, 
   VideoSlotSession, 
-  VideoSlotSessionSerializer
+  VideoSlotSessionSerializer,
+  SimulationConfig,
+  Simulation
 } from "pokie";
 /*
 Let's create the game configuration.
@@ -30,7 +32,7 @@ and a list of all available symbols. We also need to define which symbols are wi
 const config = new VideoSlotConfig();
 config.setReelsNumber(5);
 config.setReelsSymbolsNumber(4);
-config.setAvailableBets([2, 3, 4, 5, 10, 15, 20, 25, 30]);
+config.setAvailableBets([1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 50]);
 config.setAvailableSymbols(["Ace", "King", "Queen", "Jack", "Ten", "Nine", "Wild", "Scatter1", "Scatter2"]);
 config.setWildSymbols(["Wild"]);
 config.setScatterSymbols(["Scatter1", "Scatter2"]);
@@ -72,7 +74,7 @@ customLinesDefinitions.setLineDefinition("24", [0, 2, 1, 2, 0]);
 
 
 config.setLinesDefinitions(customLinesDefinitions);
-console.log(config.getLinesDefinitions());
+//console.log(config.getLinesDefinitions());
 
 /*
 Lines patterns define the direction of how the winning symbols are counted on the winning line.
@@ -101,15 +103,18 @@ for (let i = 0; i < config.getReelsNumber(); i++) {
     and only 1 "Scatter1".
      */
     sequence.fromNumbersOfSymbols({
-        Nine: 5,
+        Nine: 6,
         Ten: 5,
-        Jack: 4,
-        Queen: 4,
-        King: 3,
-        Ace: 2,
+        Jack: 5,
+        Queen: 5,
+        King: 4,
+        Ace: 3,
         Wild: 3,
         Scatter1: 1,
+        //Scatter2: 1,
     });
+
+
 
 
     
@@ -168,7 +173,7 @@ config.setSymbolsSequences(sequences);
 /*
  * Let's say that the initial balance for the game session should be 10000 credits.
  */
-config.setCreditsAmount(10000);
+config.setCreditsAmount(1000);
 /*
  * Finally, we need to define the paytable for the game.
  * Let's initialize an empty paytable for the list of available bets.
@@ -198,116 +203,57 @@ paytable.setPayoutForSymbol("Ace", 5, 4);
 paytable.setPayoutForSymbol("Scatter1", 3, 2);
 paytable.setPayoutForSymbol("Scatter1", 4, 5);
 paytable.setPayoutForSymbol("Scatter1", 5, 10);
-paytable.setPayoutForSymbol("Scatter2", 12, 40);
+//paytable.setPayoutForSymbol("Scatter2", 3, 10);
 /*
  * Once the paytable is defined, we can put it into the config.
  */
 config.setPaytable(paytable);
 
 
-
-
-
-// const allReelsCombinations = SymbolsCombinationsAnalyzer.getAllPossibleSymbolsCombinations(
-//   config.getSymbolsSequences(), config.getReelsSymbolsNumber()
-// );
-
-// console.log("Total combinations number: " + allReelsCombinations.length);
-
-// console.log("First combination: ");
-// console.log(allReelsCombinations[0]);
-
-// console.log("Second combination: ");
-// console.log(allReelsCombinations[1]);
-
-// console.log("Second combination: ");
-// console.log(allReelsCombinations[2]);
-
-// console.log("Penultimate combination: ");
-// console.log(allReelsCombinations[allReelsCombinations.length - 2]);
-
-// console.log("Last combination: ");
-// console.log(allReelsCombinations[allReelsCombinations.length - 1]);
-
-
-// const allWinsData = [];
-// let totalPayout = 0;
-// allReelsCombinations.forEach(combination => {
-//     const wc = new VideoSlotWinCalculator(config);
-//     wc.calculateWin(config.getBet(), new SymbolsCombination().fromMatrix(combination));
-//     if (wc.getWinAmount() > 0) {
-//         allWinsData.push(wc);
-//         totalPayout += wc.getWinAmount();
-//     }
-// });
-// console.log("Total winning combinations number: " + allWinsData.length);
-// console.log("Total payout: " + totalPayout);
-// console.log("Hit frequency: " + allWinsData.length / allReelsCombinations.length);
-// console.log("RTP: " + totalPayout / allReelsCombinations.length);
-
-
-
-
-
-
-
-
-
-
-
 /*
  * Now everything is done, and the default video slot game session can be created for the config we've just built.
  */
 const session = new VideoSlotSession(config);
-function simulateRounds(numberOfRounds) {
-    console.log(`\n--- Starting 5x4 Simulation (${new Intl.NumberFormat().format(numberOfRounds)} rounds) ---`);
+const sessinSerializer =  new VideoSlotSessionSerializer();
 
-    let totalPayout = 0;
-    let winningRoundsCount = 0;
-    
-    // The session object is already created in the file, we can use it.
-    // It correctly encapsulates the 5x4 config, combinations generator, and win calculator.
-    const simulationSession = session; 
-    
-    // Set a default bet for the simulation if one isn't set.
-    console.log('Bet amount',simulationSession.getBet())
-    if (!simulationSession.getBet()) {
-        simulationSession.setBet(config.getAvailableBets()[0]);
-    }
-    const betAmount = simulationSession.getBet();
+// const simulationConfig = new SimulationConfig();
+// simulationConfig.setNumberOfRounds(500);
 
-    for (let i = 0; i < numberOfRounds; i++) {
-        simulationSession.play();
-        const winAmount = simulationSession.getWinAmount();
-
-        if (winAmount > 0) {
-            winningRoundsCount++;
-        }
-        totalPayout += winAmount;
-    }
-
-    const totalBet = numberOfRounds * betAmount;
-    const hitFrequency = (winningRoundsCount / numberOfRounds);
-    const rtp = (totalPayout / totalBet);
-
-    console.log(`Total Bet: ${new Intl.NumberFormat().format(totalBet)}`);
-    console.log(`Total Payout: ${new Intl.NumberFormat().format(totalPayout)}`);
-    console.log(`Winning Rounds: ${new Intl.NumberFormat().format(winningRoundsCount)}`);
-    console.log(`Simulated Hit Frequency: ${hitFrequency.toFixed(4)}`);
-    console.log(`Simulated RTP: ${rtp.toFixed(4)}`);
-    console.log(`--- Simulation Finished ---\n`);
-
-    return {
-        totalPayout,
-        winningRoundsCount,
-        hitFrequency,
-        rtp
-    };
-}
+// const simulation = new Simulation(session, simulationConfig);
 
 
-// To use this, add the function to the file and then call it, for example:
-simulateRounds(5000);
+// simulation.beforePlayCallback = () => {
+//     //console.log("Before play");
+// };
+// simulation.afterPlayCallback = () => {
+//     const roundData = sessinSerializer.getRoundData(session);
+
+//     if (roundData.winningScatters && Object.values(roundData.winningScatters).length > 0) {
+//         let totalWin = Object.values(roundData.winningScatters).reduce((sum, scatter) => sum + scatter.winAmount, 0);
+//         console.log("-----Scatter win:" + Object.values(roundData.winningScatters).length, totalWin);
+//         console.log(roundData.winningScatters);
+//     }else{
+//       console.log('No---')
+
+//     }
+
+// };
+// simulation.onFinishedCallback = () => {
+//     console.log("Simulation finished");
+// };
+// simulation.run();
+// console.log("Simulation results:");
+// console.log("RTP: " + simulation.getAverageRtp());
+// console.log("Average payout: " + simulation.getAveragePayout());
+// console.log("Payouts standard deviation: " + simulation.getPayoutsStandardDeviation());
+// console.log("Average payout without non-winning rounds: " + simulation.getAveragePayout(false));
+// console.log("Payouts standard deviation without non-winning rounds: " + simulation.getPayoutsStandardDeviation(false));
+// console.log('Hit frequency:'+ simulation.getHitFrequency())
+// console.log('No of round: '+ simulation.getTotalNumberOfRounds())
+// console.log('winning round: '+ simulation.getNumberOfWinningRounds())
+
+
+
 export const customGameSession = session;
-export const customGameSessionSerializer = new VideoSlotSessionSerializer();
+export const customGameSessionSerializer = sessinSerializer;
 export const customScenarios = [];
