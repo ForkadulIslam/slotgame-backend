@@ -18,9 +18,9 @@ This file defines the configuration and session for a special Free Game mode.
 */
 
 class FreeGameConfig extends VideoSlotWithFreeGamesConfig {
+
     constructor() {
         super();
-
         // Basic game setup (mirrors the base game)
         this.setReelsNumber(5);
         this.setReelsSymbolsNumber(4);
@@ -44,19 +44,19 @@ class FreeGameConfig extends VideoSlotWithFreeGamesConfig {
         customLinesDefinitions.setLineDefinition("9", defaultLinesDefinitions.getLineDefinition("9"));
         customLinesDefinitions.setLineDefinition("10", defaultLinesDefinitions.getLineDefinition("10"));
         customLinesDefinitions.setLineDefinition("11", defaultLinesDefinitions.getLineDefinition("11"));
-        // customLinesDefinitions.setLineDefinition("12", [0, 1, 0, 1, 0]);
-        // customLinesDefinitions.setLineDefinition("13", [1, 2, 1, 2, 1]);
-        // customLinesDefinitions.setLineDefinition("14", [2, 3, 2, 3, 2]);
-        // customLinesDefinitions.setLineDefinition("15", [1, 0, 1, 0, 1]);
-        // customLinesDefinitions.setLineDefinition("16", [2, 1, 2, 1, 2]);
-        // customLinesDefinitions.setLineDefinition("17", [3, 2, 3, 2, 3]);
-        // customLinesDefinitions.setLineDefinition("18", [0, 1, 2, 3, 2]);
-        // customLinesDefinitions.setLineDefinition("19", [3, 2, 1, 0, 1]);
-        // customLinesDefinitions.setLineDefinition("20", [0, 2, 0, 2, 0]);
-        // customLinesDefinitions.setLineDefinition("21", [1, 3, 1, 3, 1]);
-        // customLinesDefinitions.setLineDefinition("22", [1, 0, 0, 0, 1]);
-        // customLinesDefinitions.setLineDefinition("23", [2, 3, 3, 3, 2]);
-        // customLinesDefinitions.setLineDefinition("24", [0, 2, 1, 2, 0]);
+        customLinesDefinitions.setLineDefinition("12", [0, 1, 0, 1, 0]);
+        customLinesDefinitions.setLineDefinition("13", [1, 2, 1, 2, 1]);
+        customLinesDefinitions.setLineDefinition("14", [2, 3, 2, 3, 2]);
+        customLinesDefinitions.setLineDefinition("15", [1, 0, 1, 0, 1]);
+        customLinesDefinitions.setLineDefinition("16", [2, 1, 2, 1, 2]);
+        customLinesDefinitions.setLineDefinition("17", [3, 2, 3, 2, 3]);
+        customLinesDefinitions.setLineDefinition("18", [0, 1, 2, 3, 2]);
+        customLinesDefinitions.setLineDefinition("19", [3, 2, 1, 0, 1]);
+        customLinesDefinitions.setLineDefinition("20", [0, 2, 0, 2, 0]);
+        customLinesDefinitions.setLineDefinition("21", [1, 3, 1, 3, 1]);
+        customLinesDefinitions.setLineDefinition("22", [1, 0, 0, 0, 1]);
+        customLinesDefinitions.setLineDefinition("23", [2, 3, 3, 3, 2]);
+        customLinesDefinitions.setLineDefinition("24", [0, 2, 1, 2, 0]);
         this.setLinesDefinitions(customLinesDefinitions);
         //console.log(this.getLinesDefinitions())
         // Use ScatteredLinesPatterns for free games to make them feel different
@@ -74,7 +74,7 @@ class FreeGameConfig extends VideoSlotWithFreeGamesConfig {
                 Queen: 4,
                 King: 3,
                 Ace: 2,
-                Wild: 3,
+                Wild: 2,
             });
             sequence.shuffle();
             freeGameSequences.push(sequence);
@@ -82,26 +82,34 @@ class FreeGameConfig extends VideoSlotWithFreeGamesConfig {
         this.setSymbolsSequences(freeGameSequences);
 
         // Create a paytable with a 2x multiplier for line wins
+        const multiplier = 5;
+
+
+
+
         const freeGamePaytable = new Paytable(this.getAvailableBets());
-        freeGamePaytable.setPayoutForSymbol("Nine", 3, 0.2 * 2);
-        freeGamePaytable.setPayoutForSymbol("Nine", 4, 0.4 * 2);
-        freeGamePaytable.setPayoutForSymbol("Nine", 5, 0.8 * 2);
-        freeGamePaytable.setPayoutForSymbol("Ten", 3, 0.2 * 2);
-        freeGamePaytable.setPayoutForSymbol("Ten", 4, 0.4 * 2);
-        freeGamePaytable.setPayoutForSymbol("Ten", 5, 0.8 * 2);
-        freeGamePaytable.setPayoutForSymbol("Jack", 3, 0.4 * 2);
-        freeGamePaytable.setPayoutForSymbol("Jack", 4, 0.8 * 2);
-        freeGamePaytable.setPayoutForSymbol("Jack", 5, 1.5 * 2);
-        freeGamePaytable.setPayoutForSymbol("Queen", 3, 0.4 * 2);
-        freeGamePaytable.setPayoutForSymbol("Queen", 4, 0.8 * 2);
-        freeGamePaytable.setPayoutForSymbol("Queen", 5, 1.5 * 2);
-        freeGamePaytable.setPayoutForSymbol("King", 3, 0.8 * 2);
-        freeGamePaytable.setPayoutForSymbol("King", 4, 1.5 * 2);
-        freeGamePaytable.setPayoutForSymbol("King", 5, 3 * 2);
-        freeGamePaytable.setPayoutForSymbol("Ace", 3, 1 * 2);
-        freeGamePaytable.setPayoutForSymbol("Ace", 4, 2 * 2);
-        freeGamePaytable.setPayoutForSymbol("Ace", 5, 4 * 2);
+        freeGamePaytable.setPayoutForSymbol("Nine", 3, 0.2 * multiplier);
+        freeGamePaytable.setPayoutForSymbol("Nine", 4, 0.4 * multiplier);
+        freeGamePaytable.setPayoutForSymbol("Nine", 5, 0.8 * multiplier);
+        freeGamePaytable.setPayoutForSymbol("Ten", 3, 0.2 * multiplier);
+        freeGamePaytable.setPayoutForSymbol("Ten", 4, 0.4 * multiplier);
+        freeGamePaytable.setPayoutForSymbol("Ten", 5, 0.8 * multiplier);
+        freeGamePaytable.setPayoutForSymbol("Jack", 3, 0.4 * multiplier);
+        freeGamePaytable.setPayoutForSymbol("Jack", 4, 0.8 * multiplier);
+        freeGamePaytable.setPayoutForSymbol("Jack", 5, 1.5 * multiplier);
+        freeGamePaytable.setPayoutForSymbol("Queen", 3, 0.4 * multiplier);
+        freeGamePaytable.setPayoutForSymbol("Queen", 4, 0.8 * multiplier);
+        freeGamePaytable.setPayoutForSymbol("Queen", 5, 1.5 * multiplier);
+        freeGamePaytable.setPayoutForSymbol("King", 3, 0.8 * multiplier);
+        freeGamePaytable.setPayoutForSymbol("King", 4, 1.5 * multiplier);
+        freeGamePaytable.setPayoutForSymbol("King", 5, 3 * multiplier);
+        freeGamePaytable.setPayoutForSymbol("Ace", 3, 1 * multiplier);
+        freeGamePaytable.setPayoutForSymbol("Ace", 4, 2 * multiplier);
+        freeGamePaytable.setPayoutForSymbol("Ace", 5, 4 * multiplier);
+
+
         this.setPaytable(freeGamePaytable);
+
     }
 }
 

@@ -22,7 +22,8 @@ import {
   VideoSlotSession, 
   VideoSlotSessionSerializer,
   SimulationConfig,
-  Simulation
+  Simulation,
+  LeftToRightLinesPatterns
 } from "pokie";
 /*
 Let's create the game configuration.
@@ -81,7 +82,7 @@ Lines patterns define the direction of how the winning symbols are counted on th
 In our case, lines should count from right to left, so let's instantiate the patterns we want
 and put them into the config.
 */
-const linesPatterns = new RightToLeftLinesPatterns(config.getReelsNumber());
+const linesPatterns = new LeftToRightLinesPatterns(config.getReelsNumber());
 config.setLinesPatterns(linesPatterns);
 /*
 Symbols sequences (also known as reels strips) are the long lists with all possible symbols combinations in the game.
@@ -110,7 +111,7 @@ for (let i = 0; i < config.getReelsNumber(); i++) {
         King: 4,
         Ace: 3,
         Wild: 3,
-        Scatter1: 1,
+        Scatter1: 2,
         //Scatter2: 1,
     });
 
@@ -213,47 +214,60 @@ config.setPaytable(paytable);
 /*
  * Now everything is done, and the default video slot game session can be created for the config we've just built.
  */
+//Simulation code start
+
 const session = new VideoSlotSession(config);
 const sessinSerializer =  new VideoSlotSessionSerializer();
 
-// const simulationConfig = new SimulationConfig();
-// simulationConfig.setNumberOfRounds(500);
+const simulationConfig = new SimulationConfig();
+simulationConfig.setNumberOfRounds(500);
 
-// const simulation = new Simulation(session, simulationConfig);
-
-
-// simulation.beforePlayCallback = () => {
-//     //console.log("Before play");
-// };
-// simulation.afterPlayCallback = () => {
-//     const roundData = sessinSerializer.getRoundData(session);
-
-//     if (roundData.winningScatters && Object.values(roundData.winningScatters).length > 0) {
-//         let totalWin = Object.values(roundData.winningScatters).reduce((sum, scatter) => sum + scatter.winAmount, 0);
-//         console.log("-----Scatter win:" + Object.values(roundData.winningScatters).length, totalWin);
-//         console.log(roundData.winningScatters);
-//     }else{
-//       console.log('No---')
-
-//     }
-
-// };
-// simulation.onFinishedCallback = () => {
-//     console.log("Simulation finished");
-// };
-// simulation.run();
-// console.log("Simulation results:");
-// console.log("RTP: " + simulation.getAverageRtp());
-// console.log("Average payout: " + simulation.getAveragePayout());
-// console.log("Payouts standard deviation: " + simulation.getPayoutsStandardDeviation());
-// console.log("Average payout without non-winning rounds: " + simulation.getAveragePayout(false));
-// console.log("Payouts standard deviation without non-winning rounds: " + simulation.getPayoutsStandardDeviation(false));
-// console.log('Hit frequency:'+ simulation.getHitFrequency())
-// console.log('No of round: '+ simulation.getTotalNumberOfRounds())
-// console.log('winning round: '+ simulation.getNumberOfWinningRounds())
+const simulation = new Simulation(session, simulationConfig);
 
 
+simulation.beforePlayCallback = () => {
+    //console.log("Before play");
+};
+simulation.afterPlayCallback = () => {
+    const roundData = sessinSerializer.getRoundData(session);
 
-export const customGameSession = session;
-export const customGameSessionSerializer = sessinSerializer;
-export const customScenarios = [];
+    if (roundData.winningScatters && Object.values(roundData.winningScatters).length > 0) {
+        let totalWin = Object.values(roundData.winningScatters).reduce((sum, scatter) => sum + scatter.winAmount, 0);
+        console.log("-----Scatter win:" + Object.values(roundData.winningScatters).length, totalWin);
+        console.log(roundData.winningScatters);
+    }else{
+      console.log('No---')
+
+    }
+
+};
+simulation.onFinishedCallback = () => {
+    console.log("Simulation finished");
+};
+simulation.run();
+console.log("Simulation results:");
+console.log("RTP: " + simulation.getAverageRtp());
+console.log("Average payout: " + simulation.getAveragePayout());
+console.log("Payouts standard deviation: " + simulation.getPayoutsStandardDeviation());
+console.log("Average payout without non-winning rounds: " + simulation.getAveragePayout(false));
+console.log("Payouts standard deviation without non-winning rounds: " + simulation.getPayoutsStandardDeviation(false));
+console.log('Hit frequency:'+ simulation.getHitFrequency())
+console.log('No of round: '+ simulation.getTotalNumberOfRounds())
+console.log('winning round: '+ simulation.getNumberOfWinningRounds())
+
+//simulation Finish
+
+
+
+export function createGameSession() {
+    // 'config' is the VideoSlotConfig object you already defined in this file
+    const newSession = new VideoSlotSession(config);
+    const newSerializer = new VideoSlotSessionSerializer();
+    newSession.setCreditsAmount(1000); // Set initial credits for the new session
+    return { 
+      session: newSession, 
+      serializer: newSerializer,
+      customScenarios:[]
+    };
+}
+
