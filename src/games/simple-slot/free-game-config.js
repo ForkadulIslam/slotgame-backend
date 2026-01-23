@@ -115,10 +115,10 @@ class FreeGameConfig extends VideoSlotWithFreeGamesConfig {
 
 
 
-export function runFreeGamesSimulation(bet, numberOfRound=10) {
-
+export function runFreeGamesSimulation(credits, bet, numberOfRound=10) {
     const config = new FreeGameConfig();
-    config.setCreditsAmount(Infinity); // Ensure simulation doesn't stop due to lack of credits
+    const betAmountAdditionForFreeGame = credits+bet*numberOfRound //Credits has been adjusted as the free game should not deduct bet amount
+    config.setCreditsAmount(betAmountAdditionForFreeGame); // Ensure simulation doesn't stop due to lack of credits
     const session = new VideoSlotWithFreeGamesSession(config);
     session.setBet(bet);
     const serializer = new VideoSlotWithFreeGamesSessionSerializer();

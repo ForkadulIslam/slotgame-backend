@@ -2,7 +2,7 @@
 This is an example of a simple 5x4 video slot game with 8 winning lines.
 
 Features:
-- Winning lines are counted from right to left. A line of minimum 3 winning symbols pays out.
+- A line of minimum 3 winning symbols pays out.
 
 - "Wild" is a wild symbol that substitutes any other symbol on a winning line.
 
@@ -15,8 +15,7 @@ Features:
 import { 
   CustomLinesDefinitions, 
   LinesDefinitionsFor5x4, 
-  Paytable, 
-  RightToLeftLinesPatterns, 
+  Paytable,  
   SymbolsSequence, 
   VideoSlotConfig, 
   VideoSlotSession, 
