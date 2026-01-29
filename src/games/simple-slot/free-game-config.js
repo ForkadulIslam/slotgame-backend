@@ -82,11 +82,7 @@ class FreeGameConfig extends VideoSlotWithFreeGamesConfig {
         this.setSymbolsSequences(freeGameSequences);
 
         // Create a paytable with a 2x multiplier for line wins
-        const multiplier = 5;
-
-
-
-
+        const multiplier = 2;
         const freeGamePaytable = new Paytable(this.getAvailableBets());
         freeGamePaytable.setPayoutForSymbol("Nine", 3, 0.2 * multiplier);
         freeGamePaytable.setPayoutForSymbol("Nine", 4, 0.4 * multiplier);

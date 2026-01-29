@@ -1,10 +1,45 @@
-Simulation finished
-Simulation results:
-RTP: 0.5992609603622265
-Average payout: 0.6095999999999997
-Payouts standard deviation: 1.0653580806470686
-Average payout without non-winning rounds: 1.297021276595744
-Payouts standard deviation without non-winning rounds: 1.234207325756724
-Hit frequency:0.47
-No of round: 500
-winning round: 235
+GET: jadurtaka.bdflc.org/api/user_by_id/1
+
+Response:
+{
+    "remark": "user_info",
+    "status": "success",
+    "message": {
+        "success": [
+            "User information"
+        ]
+    },
+    "data": {
+        "id": 1,
+        "username": "fuadhasan",
+        "balance": "120.00000000",
+        "userImage": "http://jadurtaka.bdflc.org/placeholder-image/350x350"
+    }
+}
+
+
+
+
+PATCH jadurtaka.bdflc.org/api/update_user_balance/1
+Payload:
+{
+    "amount": "10",
+    "trx_type": "+"
+}
+
+Response:
+{
+    "remark": "user_info",
+    "status": "success",
+    "message": {
+        "success": [
+            "User balance updated successfully"
+        ]
+    },
+    "data": {
+        "id": 1,
+        "username": "fuadhasan",
+        "balance": 130,
+        "userImage": "http://jadurtaka.bdflc.org/placeholder-image/350x350"
+    }
+}

@@ -78,8 +78,7 @@ config.setLinesDefinitions(customLinesDefinitions);
 
 /*
 Lines patterns define the direction of how the winning symbols are counted on the winning line.
-In our case, lines should count from right to left, so let's instantiate the patterns we want
-and put them into the config.
+In our case, lines should count from left to right.
 */
 const linesPatterns = new LeftToRightLinesPatterns(config.getReelsNumber());
 config.setLinesPatterns(linesPatterns);
@@ -103,13 +102,13 @@ for (let i = 0; i < config.getReelsNumber(); i++) {
     and only 1 "Scatter1".
      */
     sequence.fromNumbersOfSymbols({
-        Nine: 6,
-        Ten: 5,
+        Nine: 4,
+        Ten: 3,
         Jack: 5,
         Queen: 5,
         King: 4,
         Ace: 3,
-        Wild: 3,
+        Wild: 2,
         Scatter1: 2,
         //Scatter2: 1,
     });
@@ -236,7 +235,6 @@ simulation.afterPlayCallback = () => {
         console.log(roundData.winningScatters);
     }else{
       console.log('No---')
-
     }
 
 };
