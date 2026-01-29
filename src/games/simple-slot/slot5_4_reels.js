@@ -227,15 +227,13 @@ simulation.beforePlayCallback = () => {
     //console.log("Before play");
 };
 simulation.afterPlayCallback = () => {
-    const roundData = sessinSerializer.getRoundData(session);
+    // const roundData = sessinSerializer.getRoundData(session);
 
-    if (roundData.winningScatters && Object.values(roundData.winningScatters).length > 0) {
-        let totalWin = Object.values(roundData.winningScatters).reduce((sum, scatter) => sum + scatter.winAmount, 0);
-        console.log("-----Scatter win:" + Object.values(roundData.winningScatters).length, totalWin);
-        console.log(roundData.winningScatters);
-    }else{
-      console.log('No---')
-    }
+    // if (roundData.winningScatters && Object.values(roundData.winningScatters).length > 0) {
+    //     let totalWin = Object.values(roundData.winningScatters).reduce((sum, scatter) => sum + scatter.winAmount, 0);
+    //     // console.log("-----Scatter win:" + Object.values(roundData.winningScatters).length, totalWin);
+    //     // console.log(roundData.winningScatters);
+    // }
 
 };
 simulation.onFinishedCallback = () => {

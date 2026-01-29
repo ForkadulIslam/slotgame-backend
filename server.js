@@ -58,14 +58,29 @@ app.get('/test-redis', async (req, res) => {
  * If you have a Free Spin session that persists across refreshes, 
  * you would save that state here too.
  */
-async function savePlayerState(sessionId, credits) {
-    const data = JSON.stringify({ credits });
-    await redisClient.set(`slot_ptr_${sessionId}`, data, { EX: SESSION_EXPIRY });
+async function savePlayerState(sessionId, stateObject) {
+    await redisClient.set(`slot_ptr_${sessionId}`, JSON.stringify(stateObject), { EX: SESSION_EXPIRY });
 }
 
 async function getPlayerState(sessionId) {
     const data = await redisClient.get(`slot_ptr_${sessionId}`);
     return data ? JSON.parse(data) : null;
+}
+
+async function deletePlayerState(sessionId) {
+    await redisClient.del(`slot_ptr_${sessionId}`);
+}
+
+async function setUserSessionId(userId, sessionId) {
+    await redisClient.set(`user_session:${userId}`, sessionId, { EX: SESSION_EXPIRY });
+}
+
+async function getUserSessionId(userId) {
+    return await redisClient.get(`user_session:${userId}`);
+}
+
+async function deleteUserSessionMapping(userId) {
+    await redisClient.del(`user_session:${userId}`);
 }
 
 
@@ -84,9 +99,17 @@ app.post('/start-session', async (req, res) => {
         });
     }
 
+    // Invalidate any existing session for this user
+    const oldSessionId = await getUserSessionId(userId);
+    if (oldSessionId) {
+        await deletePlayerState(oldSessionId);
+        await deleteUserSessionMapping(userId);
+        console.log(`Invalidated old session ${oldSessionId} for user ${userId}`);
+    }
+
     let initialUserBalance;
     try {
-        const userApiUrl = `http://jadurtaka.bdflc.org/api/user_by_id/${userId}`;
+        const userApiUrl = `http://jadurtaka.test/api/user_by_id/${userId}`;
         const response = await fetch(userApiUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -95,13 +118,13 @@ app.post('/start-session', async (req, res) => {
         if (userData.status === 'success' && userData.data && userData.data.balance) {
             initialUserBalance = parseFloat(userData.data.balance);
         } else {
-            throw new Error('Could not retrieve user balance');
+            throw new Error('Could not retrieve user balance from the external API.');
         }
     } catch (error) {
-        //console.error('Error fetching user balance:', error);
+        console.error('Error fetching user balance:', error);
         return res.status(500).json({ 
             status: 'error', 
-            message: 'Failed to fetch user' 
+            message: 'Failed to fetch user balance from the external API.' 
         });
     }
 
@@ -109,7 +132,23 @@ app.post('/start-session', async (req, res) => {
     const { session, serializer } = createGameSession();
 
     session.setCreditsAmount(initialUserBalance);
-    await savePlayerState(sessionId, session.getCreditsAmount());
+
+    // Create the initial state object with spin_count
+    const initialState = {
+        //userId: userId, // Added userId to the session state
+        credits: session.getCreditsAmount(),
+        spin_count: 0,
+        booster: {
+            active: true,
+            multiplier: 1,
+            no_of_spin_round: 10,
+            uses_left: 15,
+            spin_interval: 100
+        }
+    };
+
+    await savePlayerState(sessionId, initialState);
+    await setUserSessionId(userId, sessionId);
 
     console.log(`New Redis-backed session for userId ${userId}: ${sessionId}`);
 
@@ -135,6 +174,9 @@ app.post('/spin', async (req, res) => { // Made the function async
 
     try {
         await lock.acquire(sessionId, async () => {
+
+            // Increment spin count
+            state.spin_count++;
 
             const { session: userSession, serializer: userSessionSerializer } = createGameSession();
 
@@ -163,23 +205,32 @@ app.post('/spin', async (req, res) => { // Made the function async
             // Check if Scatter1 has a win
             let freeGamesResult = null;
             if (roundData.winningScatters && roundData.winningScatters.Scatter1) {
-                // If Scatter1 wins, trigger the free games simulation and return its results
-                let baseCredit = userSession.getCreditsAmount();
-                freeGamesResult = runFreeGamesSimulation(baseCredit, bet, 5);
-                baseCredit += freeGamesResult.freeGamesTotalWin
-                userSession.setCreditsAmount(baseCredit)
+                // If Scatter1 wins, check for booster conditions
+                //console.log(state.booster);
+                if (state.booster && state.booster.active && state.booster.uses_left > 0 && state.spin_count > state.booster.spin_interval) {
+                    // Booster conditions met, trigger enhanced free games
+                    let baseCredit = userSession.getCreditsAmount();
+                    freeGamesResult = runFreeGamesSimulation(baseCredit, bet, state.booster.no_of_spin_round, state.booster.multiplier);
+                    baseCredit += freeGamesResult.freeGamesTotalWin;
+                    userSession.setCreditsAmount(baseCredit);
+                    state.booster.uses_left--; // Decrement booster uses
+                    state.spin_count = 0; // Reset spin count
+                }
             }
             if (roundData.winningScatters && roundData.winningScatters.Scatter2) {
                 // If Scatter1 wins, trigger the free games simulation and return its results
-                console.log('Special scatter2........');
             }
 
 
+            // Update the state object with the new balance
+            state.credits = userSession.getCreditsAmount();
 
-            // Persist the NEW balance back to Redis
-            await savePlayerState(sessionId, userSession.getCreditsAmount());
-            const responseData = { ...roundData, totalWin, freeGamesResult }
-            
+
+
+            // Persist the NEW, full state object back to Redis
+            await savePlayerState(sessionId, state);
+
+            const responseData = {  totalWin, freeGamesResult, spin_count: state.spin_count }
             res.json(responseData);
         }, { timeout: 0 });
     }

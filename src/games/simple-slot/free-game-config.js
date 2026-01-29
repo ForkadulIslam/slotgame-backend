@@ -19,7 +19,7 @@ This file defines the configuration and session for a special Free Game mode.
 
 class FreeGameConfig extends VideoSlotWithFreeGamesConfig {
 
-    constructor() {
+    constructor(multiplier=1) {
         super();
         // Basic game setup (mirrors the base game)
         this.setReelsNumber(5);
@@ -68,13 +68,13 @@ class FreeGameConfig extends VideoSlotWithFreeGamesConfig {
             const sequence = new SymbolsSequence();
             // Note: No "Scatter1" or "Scatter2", and more "Wild" symbols
             sequence.fromNumbersOfSymbols({
-                Nine: 5,
-                Ten: 5,
-                Jack: 4,
-                Queen: 4,
-                King: 3,
-                Ace: 2,
-                Wild: 2,
+                Nine: 4,
+                Ten: 3,
+                Jack: 5,
+                Queen: 5,
+                King: 4,
+                Ace: 3,
+                Wild: 2,                 
             });
             sequence.shuffle();
             freeGameSequences.push(sequence);
@@ -82,7 +82,6 @@ class FreeGameConfig extends VideoSlotWithFreeGamesConfig {
         this.setSymbolsSequences(freeGameSequences);
 
         // Create a paytable with a 2x multiplier for line wins
-        const multiplier = 2;
         const freeGamePaytable = new Paytable(this.getAvailableBets());
         freeGamePaytable.setPayoutForSymbol("Nine", 3, 0.2 * multiplier);
         freeGamePaytable.setPayoutForSymbol("Nine", 4, 0.4 * multiplier);
@@ -111,8 +110,8 @@ class FreeGameConfig extends VideoSlotWithFreeGamesConfig {
 
 
 
-export function runFreeGamesSimulation(credits, bet, numberOfRound=10) {
-    const config = new FreeGameConfig();
+export function runFreeGamesSimulation(credits, bet, numberOfRound=10, multiplier=1) {
+    const config = new FreeGameConfig(multiplier);
     const betAmountAdditionForFreeGame = credits+bet*numberOfRound //Credits has been adjusted as the free game should not deduct bet amount
     config.setCreditsAmount(betAmountAdditionForFreeGame); // Ensure simulation doesn't stop due to lack of credits
     const session = new VideoSlotWithFreeGamesSession(config);
@@ -134,7 +133,6 @@ export function runFreeGamesSimulation(credits, bet, numberOfRound=10) {
     const totalWin = simulation.getTotalPayoutAmount();
     const totalWinRound = simulation.getNumberOfWinningRounds();
     // Return a structured object with all the free spins data
-    console.log('Frespin result:')
     return {
         triggeredFreeGames: true,
         freeGamesSpins: allRoundsData,
@@ -143,4 +141,6 @@ export function runFreeGamesSimulation(credits, bet, numberOfRound=10) {
         totalWinRound
     };
 }
+
+
 
