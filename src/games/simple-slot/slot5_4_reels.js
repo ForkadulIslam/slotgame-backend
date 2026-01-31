@@ -116,6 +116,7 @@ for (let i = 0; i < config.getReelsNumber(); i++) {
 
 
 
+
     
     /*
     The sequence we've just created will contain the stacks of the size of the number of every symbol we've provided.
